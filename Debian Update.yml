@@ -8,6 +8,6 @@
       apt: update_cache: yes
       when: ansible_os_family == "Debian"
       
-    -name : update all packages
+    -name: update all packages
       apt: upgrade=dist
       when: ansible_os_family == "Debian"
