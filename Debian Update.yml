@@ -5,9 +5,11 @@
   tasks:
     
     -name: update package repository
-      apt: update_cache: yes
+      apt: 
+        update_cache: yes
       when: ansible_os_family == "Debian"
       
     -name: update all packages
-      apt: upgrade=dist
+      apt: 
+        upgrade=dist
       when: ansible_os_family == "Debian"
