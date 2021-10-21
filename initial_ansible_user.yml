@@ -1,0 +1,32 @@
+---
+# Use inventory file and "ansible-playbook -k -i inventory initial_ansible_user.yml"
+- hosts: all
+  become: true
+
+  handlers:
+    - name: restart ssh
+      service:
+        name: sshd
+        state: restarted
+
+# To generate hash, from ansible host: "ansible all -i localhost, -m debug -a "msg={{ 'password-here' | password_hash('sha512', 'mysecretsalt') }}"
+  tasks:
+    - name: Add ansible user for tower connection.
+      user:
+        name: ansible
+        state: present
+        password: $6$mysecretsalt$SaKyVsumpLlc4nwdCoPyI85bi.u0DRqK6uDV.BSNEX0KpQEsXiXeoRjMPrXWKke2Xvviub8q3oJ/ms0TRrQfs0
+
+    - name: Add ansible user to sudoers file.
+      lineinfile:
+        dest: /etc/sudoers
+        line: "ansible ALL=(ALL) NOPASSWD: ALL"
+        validate: "visudo -cf %s"
+
+    - name: Disable root SSH login.
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: "^PermitRootLogin"
+        line: "PermitRootLogin no"
+        validate: "sshd -t -f %s"
+      notify: restart ssh
